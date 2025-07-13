@@ -1,3 +1,4 @@
+import base64
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -9,11 +10,11 @@ from datetime import datetime, timedelta
 import warnings
 warnings.filterwarnings('ignore')
 
-# --- 1. KONFIGURASI APLIKASI DAN ASET ---
+# --- 1. KONFIGURASI APLIKASI ---
 st.set_page_config(
-    page_title="Cryptocurrency Price Prediction",
+    page_title="RamalKripto.ID",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # Custom CSS untuk styling modern
@@ -36,80 +37,28 @@ st.markdown("""
         font-weight: 500;
     }
     
-    .prediction-container {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2.5rem;
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        margin: 2rem 0;
-        color: white;
+    .config-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        margin: 1rem 0;
+        border-left: 5px solid #667eea;
     }
     
     .select-label {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: white;
-        margin-bottom: 1rem;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-    }
-    
-    .slider-label {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: white;
-        margin-bottom: 1rem;
-        margin-top: 2rem;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-    }
-    
-    .generate-btn {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        margin-top: 2.5rem;
-    }
-
-    
-    .stButton > button {
-        background: linear-gradient(45deg, #3b82f6, #60a5fa);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 1rem 3rem;
         font-size: 1.1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s;
-        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-    }
-    
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 20px rgba(0,0,0,0.3);
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        margin-top: 1rem;
     }
     
     .info-card {
-        background-color: #fff3cd;
-        border: 1px solid #ffeaa7;
+        background-color: #f0f2f6;
         border-radius: 10px;
-        padding: 1rem;
-        margin: 1rem 0;
-        color: #856404;
-    }
-    
-    .metric-card {
-        background: white;
         padding: 1.5rem;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        text-align: center;
-        border-left: 5px solid #667eea;
+        margin: 1rem 0;
+        color: #2d3748;
     }
     
     .chart-container {
@@ -119,10 +68,31 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         margin: 1rem 0;
     }
+    
+    .stButton > button {
+        background: linear-gradient(45deg, #3b82f6, #60a5fa);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        width: 100%;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.3);
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# Kamus (Dictionary) untuk menyimpan konfigurasi setiap aset
+# --- 2. KONFIGURASI ASET ---
 ASSETS = {
     "BTC-USD": {
         "name": "Bitcoin",
@@ -142,8 +112,7 @@ ASSETS = {
     }
 }
 
-# --- 2. FUNGSI-FUNGSI UTAMA ---
-
+# --- 3. FUNGSI-FUNGSI UTAMA ---
 @st.cache_resource
 def load_artifacts(asset_ticker):
     """Memuat model, scaler, dan data window berdasarkan aset yang dipilih."""
@@ -206,82 +175,114 @@ def create_enhanced_plot(x_data, y_data, title, color, ylabel="Price (USD)"):
     
     return fig
 
-# --- 3. TAMPILAN UTAMA APLIKASI ---
+# --- 4. SIDEBAR ---
+with st.sidebar:
 
-# Header utama
-st.markdown('<h1 class="main-header">🚀 Cryptocurrency Price Prediction</h1>', unsafe_allow_html=True)
-st.markdown('<p class="sub-header">Hybrid BiLSTM-GRU Neural Network Model</p>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="info-card">
+        <h4>📊 Data Information</h4>
+        <ul>
+            <li>Data taken from Yahoo Finance at 1 hour intervals</li>
+            <li>There is a delay of about 9 hours from real-time</li>
+            <li>Historical data displays the last 90 days for trend analysis</li>
+            <li>Model using Hybrid BiLSTM-GRU architecture for accurate prediction</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+    
 
-# Informasi penting tentang delay data
+# --- 5. HEADER UTAMA ---
+with st.container():
+    st.markdown(
+        """
+        <style>
+        .stImage > img {
+            margin: 0 auto;
+            display: block;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    col1, col2, col3 = st.columns([1, 3, 1])
+    with col2:
+        st.image("RamalKriptoID1.png", width=500)
+    
+    st.markdown("""
+    <div style="text-align: center; margin: 3rem 0;">
+        <div style="margin: 2rem 0;">
+            <h3>✨ Features</h3>
+            <div style="display: flex; justify-content: space-around; margin: 2rem 0;">
+                <div style="text-align: center;">
+                    <h4>🧠 Pre-trained Models</h4>
+                    <p>Hybrid BiLSTM-GRU neural networks ready for predictions</p>
+                </div>
+                <div style="text-align: center;">
+                    <h4>📈 Interactive Charts</h4>
+                    <p>Beautiful visualizations with historical and predicted data</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# --- 6. KONFIGURASI PREDIKSI (LAYOUT VERTIKAL) ---
+# Pilihan Cryptocurrency
 st.markdown("""
-<div class="info-card">
-    <strong>📊 Data Information:</strong><br>
-    • Data diambil dari Yahoo Finance dengan interval 1 jam<br>
-    • Terdapat delay sekitar 9 jam dari waktu real-time<br>
-    • Data historis menampilkan 90 hari terakhir untuk analisis tren<br>
-    • Model menggunakan arsitektur Hybrid BiLSTM-GRU untuk prediksi yang akurat
-</div>
-""", unsafe_allow_html=True)
+    <div style="text-align: center; margin: 8rem 0;">
+        <p style="font-size: 1.2rem; color: #666;">
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+st.markdown("""
+    <div style="text-align: center; margin: 0rem 0;">
+        <p style="font-size: 1.2rem; color: #666;">
+            Select a cryptocurrency and prediction horizon above, then click the predict button to start the analysis.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+st.markdown('<p class="select-label">📈 Select Cryptocurrency</p>', unsafe_allow_html=True)
+crypto_options = {f"{ASSETS[ticker]['name']} ({ticker})": ticker for ticker in ASSETS.keys()}
+selected_crypto_display = st.selectbox(
+    "",
+    options=list(crypto_options.keys()),
+    index=0,
+    label_visibility="collapsed"
+)
 
-# Container untuk form prediksi
-with st.container():    
-    # Dropdown untuk pilihan cryptocurrency
-    st.markdown('<p class="select-label">📈 Select Cryptocurrency</p>', unsafe_allow_html=True)
-    
-    # Membuat options yang menampilkan nama lengkap tapi menggunakan ticker sebagai value
-    crypto_options = {f"{ASSETS[ticker]['name']} ({ticker})": ticker for ticker in ASSETS.keys()}
-    
-    selected_crypto_display = st.selectbox(
-        "",
-        options=list(crypto_options.keys()),
-        index=0,
-        label_visibility="collapsed"
-    )
-    
-    selected_crypto_ticker = crypto_options[selected_crypto_display]
-    selected_crypto_name = ASSETS[selected_crypto_ticker]['name']
-    selected_crypto_color = ASSETS[selected_crypto_ticker]['color']
-    
-    # Slider untuk jam prediksi
-    st.markdown('<p class="slider-label">⏰ Prediction Hours</p>', unsafe_allow_html=True)
-    
-    hours_to_predict = st.slider(
-        "",
-        min_value=1,
-        max_value=168,
-        value=24,
-        step=1,
-        label_visibility="collapsed"
-    )
-    
-    # Tampilkan informasi slider
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col1:
-        st.markdown('<p style="color: white; font-size: 0.9rem;">1 hour</p>', unsafe_allow_html=True)
-    with col2:
-        st.markdown(f'<p style="color: white; text-align: center; font-weight: 600;">Selected: {hours_to_predict} hours ({hours_to_predict/24:.1f} days)</p>', unsafe_allow_html=True)
-    with col3:
-        st.markdown('<p style="color: white; text-align: right; font-size: 0.9rem;">168 hours (7 days)</p>', unsafe_allow_html=True)
-    
-    # Tombol Generate Model
-    # st.markdown('<div class="generate-btn">', unsafe_allow_html=True)
-    # generate_button = st.button("GENERATE PREDICTION", type="primary")
-    # st.markdown('</div>', unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        generate_button = st.button("GENERATE PREDICTION")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+selected_crypto_ticker = crypto_options[selected_crypto_display]
+selected_crypto_name = ASSETS[selected_crypto_ticker]['name']
+selected_crypto_color = ASSETS[selected_crypto_ticker]['color']
 
-# --- 4. LOGIKA PREDIKSI DAN HASIL ---
+# Pilihan Waktu Prediksi
+st.markdown('<p class="select-label">⏰ Hours of Prediction</p>', unsafe_allow_html=True)
+hours_to_predict = st.slider(
+    "",
+    min_value=1,
+    max_value=168,
+    value=24,
+    step=1,
+    help="Pilih berapa jam ke depan yang ingin diprediksi (1-168 jam)",
+    label_visibility="collapsed"
+)
 
+# Tombol Generate
+st.markdown('<p class="select-label">🚀 Generate Prediction</p>', unsafe_allow_html=True)
+generate_button = st.button(
+    f"GENERATE MODEL",
+    type="primary",
+    use_container_width=True
+)
+
+st.markdown("---")
+
+# --- 7. LOGIKA PREDIKSI ---
 if generate_button:
-    # Memuat artefak berdasarkan aset yang dipilih
     model, scaler, last_window = load_artifacts(selected_crypto_ticker)
     
     if model is not None and scaler is not None and last_window is not None:
         with st.spinner(f"🤖 Generating prediction for {selected_crypto_name}... Please wait."):
-            # Mengambil data live
             live_data = get_live_data(selected_crypto_ticker)
             
             if not live_data.empty:
@@ -313,7 +314,7 @@ if generate_button:
     else:
         st.error(f"❌ Failed to load model artifacts for {selected_crypto_name}. Please check if all required files are available.")
 
-# Tampilkan hasil prediksi jika ada
+# --- 8. TAMPILAN HASIL ---
 if 'prediction_results' in st.session_state:
     results_df = st.session_state['prediction_results']
     live_data_for_plot = st.session_state['live_data_at_prediction_time']
@@ -321,8 +322,8 @@ if 'prediction_results' in st.session_state:
     predicted_crypto_ticker = st.session_state['predicted_crypto_ticker']
     predicted_crypto_color = st.session_state['predicted_crypto_color']
     
-    # Tampilkan data historis terkini
-    st.markdown("### 📉 Recent Historical Data")
+    # Data Historis
+    st.markdown("## 📉 Recent Historical Data")
     st.markdown(f"*Showing last 90 days of {predicted_crypto_name} price data (with ~9 hours delay from real-time)*")
     
     if not live_data_for_plot.empty:
@@ -333,22 +334,21 @@ if 'prediction_results' in st.session_state:
             predicted_crypto_color
         )
         st.pyplot(fig_hist)
-        st.markdown('</div>', unsafe_allow_html=True)
         
         # Tabel data terkini
-        st.markdown("#### 📋 Recent Price Data (Last 10 Hours)")
+        st.markdown("### 📋 Recent Price Data (Last 10 Hours)")
         recent_data = live_data_for_plot[['Open', 'High', 'Low', 'Close', 'Volume']].tail(10).copy()
         recent_data = recent_data.round(2)
         recent_data.index = recent_data.index.strftime('%Y-%m-%d %H:%M')
         st.dataframe(recent_data, use_container_width=True)
     
-    # Tampilkan hasil prediksi
-    st.markdown("### 🔮 Prediction Results")
+    # Hasil Prediksi
+    st.markdown("## 🔮 Prediction Results")
     
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        st.markdown("#### 📊 Predicted Prices Table")
+        st.markdown("### 📊 Predicted Prices Table")
         display_df = results_df.copy()
         display_df['Prediksi Harga (USD)'] = display_df['Prediksi Harga (USD)'].apply(lambda x: f"${x:.2f}")
         display_df.index = range(1, len(display_df) + 1)
@@ -365,7 +365,7 @@ if 'prediction_results' in st.session_state:
         )
     
     with col2:
-        st.markdown("#### 📈 Prediction Chart")
+        st.markdown("### 📈 Prediction Chart")
         fig_pred = create_enhanced_plot(
             results_df['Waktu Prediksi'],
             results_df['Prediksi Harga (USD)'].values,
@@ -373,10 +373,9 @@ if 'prediction_results' in st.session_state:
             '#ff6b6b'
         )
         st.pyplot(fig_pred)
-        st.markdown('</div>', unsafe_allow_html=True)
     
-    # Grafik kombinasi
-    st.markdown("### 🔗 Combined Analysis: Historical vs Predicted Prices")    
+    # Grafik Kombinasi
+    st.markdown("## 🔗 Combined Analysis: Historical vs Predicted Prices")    
     fig_combined, ax_combined = plt.subplots(figsize=(16, 8))
     fig_combined.patch.set_facecolor('white')
     
@@ -389,7 +388,7 @@ if 'prediction_results' in st.session_state:
                     linewidth=3, alpha=0.8)
     ax_combined.plot(results_df['Waktu Prediksi'], results_df['Prediksi Harga (USD)'], 
                     color='#ff6b6b', linestyle='--', marker='o', 
-                    label='Predicted Price', linewidth=2.5, markersize=4, alpha=0.9)
+                    label='🔮 Predicted Price', linewidth=2.5, markersize=4, alpha=0.9)
     
     # Tambahkan garis vertikal untuk memisahkan historical dan prediction
     if len(recent_data) > 0:
@@ -405,7 +404,6 @@ if 'prediction_results' in st.session_state:
     ax_combined.legend(fontsize=12, loc='upper left')
     ax_combined.grid(True, alpha=0.3, linestyle='--')
     
-    # Styling untuk axes
     ax_combined.spines['top'].set_visible(False)
     ax_combined.spines['right'].set_visible(False)
     ax_combined.spines['left'].set_color('#e2e8f0')
@@ -414,11 +412,10 @@ if 'prediction_results' in st.session_state:
     plt.xticks(rotation=45)
     plt.tight_layout()
     st.pyplot(fig_combined)
-    st.markdown('</div>', unsafe_allow_html=True)
     
-    # Tambahan informasi
+    # Informasi Tambahan
     st.markdown("---")
-    st.markdown("### ℹ️ Additional Information")
+    st.markdown("## ℹ️ Additional Information")
     
     col1, col2 = st.columns(2)
     with col1:
@@ -439,12 +436,10 @@ if 'prediction_results' in st.session_state:
         - Past performance doesn't guarantee future results
         """)
 
-# Footer
-st.markdown("---")
+# --- 9. FOOTER ---
 st.markdown("""
 <div style='text-align: center; color: #6b7280; padding: 2rem;'>
-    <p><strong>🚀 Cryptocurrency Price Prediction App</strong></p>
-    <p>Powered by Hybrid BiLSTM-GRU Neural Networks | Data from Yahoo Finance</p>
-    <p><em>⚠️ For educational and research purposes only. Not financial advice.</em></p>
+    <p><strong>🚀 RamalKriptoID</strong></p>
+    <p>Powered by Hybrid BiLSTM-GRU Neural Networks | Data from Yahoo Finance | Putu Gio Satria Adinata</p>
 </div>
 """, unsafe_allow_html=True)
