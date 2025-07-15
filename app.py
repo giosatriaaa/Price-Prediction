@@ -192,23 +192,38 @@ with st.sidebar:
     
 
 # --- 5. HEADER UTAMA ---
-with st.container():
+import base64
+
+def get_base64_image(image_path):
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except:
+        return ""
+
+def display_logo_html():
+    # Convert image to base64
+    img_base64 = get_base64_image("RamalKriptoID1.png")
+    
     st.markdown(
-        """
-        <style>
-        .stImage > img {
-            margin: 0 auto;
-            display: block;
-        }
-        </style>
+        f"""
+        <div style="
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin: 20px 0;
+            text-align: center;
+        ">
+            <img src="data:image/png;base64,{img_base64}" 
+                 style="max-width: 500px; width: auto; height: auto;" 
+                 alt="RamalKripto.ID" />
+        </div>
         """,
         unsafe_allow_html=True
     )
-    
-    col1, col2, col3 = st.columns([1, 3, 1])
-    with col2:
-        st.image("RamalKriptoID1.png", width=500)
-    
+display_logo_html()
+with st.container():
     st.markdown("""
     <div style="text-align: center; margin: 3rem 0;">
         <div style="margin: 2rem 0;">
