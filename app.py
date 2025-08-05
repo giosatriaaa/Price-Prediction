@@ -292,6 +292,18 @@ generate_button = st.button(
 
 st.markdown("---")
 
+# Tempatkan di bagian generate_button logic
+if generate_button:
+    with st.expander("ℹ️ Additional Information", expanded=True):
+        st.markdown("""
+        - Data memiliki delay sekitar 9 jam dari waktu nyata.
+        - Prediksi ini hanya sebagai referensi edukasi.
+        - Model yang digunakan adalah BiLSTM-GRU.
+        - Performa masa lalu tidak menjamin hasil di masa depan.
+        """)
+
+
+
 # --- 7. LOGIKA PREDIKSI ---
 if generate_button:
     model, scaler, last_window = load_artifacts(selected_crypto_ticker)
@@ -431,25 +443,16 @@ if 'prediction_results' in st.session_state:
     # Informasi Tambahan
     st.markdown("---")
     st.markdown("## ℹ️ Additional Information")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.info(f"""
-        **📊 Model Information:**
-        - Architecture: Hybrid BiLSTM-GRU
-        - Prediction Range: {len(results_df)} hours
-        - Data Source: Yahoo Finance
-        - Update Frequency: Hourly
-        """)
-    
-    with col2:
-        st.warning(f"""
-        **⚠️ Important Notes:**
-        - Data has ~9 hours delay from real-time
-        - Predictions are for educational purposes
-        - Consider multiple factors before trading
-        - Past performance doesn't guarantee future results
-        """)
+
+    # Hanya tampilkan 1 kolom (tidak perlu pakai st.columns)
+    st.info(f"""
+    **📊 Model Information:**
+    - Architecture: Hybrid BiLSTM-GRU
+    - Prediction Range: {len(results_df)} hours
+    - Data Source: Yahoo Finance
+    - Update Frequency: Hourly
+    """)
+
 
 # --- 9. FOOTER ---
 st.markdown("""
