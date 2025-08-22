@@ -105,9 +105,9 @@ ASSETS = {
     "ETH-USD": {
         "name": "Ethereum",
         "ticker": "ETH-USD",
-        "model_file": "models/eth/eth_model_final_last_split.h5",
-        "scaler_file": "models/eth/eth_scaler_final.pkl",
-        "window_file": "models/eth/eth_last_window_final.npy",
+        "model_file": "models\eth\eth_model_final_last_split.h5",
+        "scaler_file": "models\eth\eth_scaler_final.pkl",
+        "window_file": "models\eth\eth_last_window_final.npy",
         "color": "#627eea"
     }
 }
